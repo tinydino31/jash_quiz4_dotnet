@@ -1,0 +1,28 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- task: UseDotNet@2
+  displayName: 'Use .NET SDK'
+  inputs:
+    packageType: 'sdk'
+    version: '9.x'
+
+- script: dotnet restore
+  displayName: 'Restore packages'
+
+- script: dotnet build --configuration Release --no-restore
+  displayName: 'Build project'
+
+- script: dotnet publish --configuration Release --no-build --output $(Build.ArtifactStagingDirectory)
+  displayName: 'Publish app'
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish artifact'
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
